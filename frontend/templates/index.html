@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>股票分析助手</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- 头部搜索 -->
+        <header class="header">
+            <h1>📈 股票分析助手</h1>
+            <p class="subtitle">实时行情 · 技术指标 · 趋势预测</p>
+
+            <div class="search-box">
+                <input
+                    type="text"
+                    id="stockInput"
+                    placeholder="输入股票代码 (如: AAPL, TSLA, 600519.SS)"
+                    value="AAPL"
+                    autocomplete="off">
+                <button onclick="analyzeStock()" id="searchBtn">分析</button>
+                <div class="suggestions" id="suggestions"></div>
+            </div>
+        </header>
+
+        <!-- 加载状态 -->
+        <div class="loading" id="loading" style="display: none;">
+            <div class="spinner"></div>
+            <p>正在分析中...</p>
+        </div>
+
+        <!-- 错误提示 -->
+        <div class="error" id="error" style="display: none;"></div>
+
+        <!-- 主内容 -->
+        <main class="main-content" id="mainContent" style="display: none;">
+            <!-- 股票基本信息 -->
+            <section class="stock-info card">
+                <div class="stock-header">
+                    <div>
+                        <h2 id="stockName">Apple Inc.</h2>
+                        <span class="stock-symbol" id="stockSymbol">AAPL</span>
+                    </div>
+                    <div class="price-info">
+                        <div class="current-price" id="currentPrice">$0.00</div>
+                        <div class="price-change" id="priceChange">+0.00 (+0.00%)</div>
+                    </div>
+                </div>
+                <div class="stock-details">
+                    <div class="detail-item">
+                        <span class="label">52周最高</span>
+                        <span class="value" id="high52w">$0.00</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label">52周最低</span>
+                        <span class="value" id="low52w">$0.00</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label">成交量</span>
+                        <span class="value" id="volume">0</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label">市值</span>
+                        <span class="value" id="marketCap">-</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 趋势预测 -->
+            <section class="prediction card">
+                <h3>🤖 AI 趋势预测</h3>
+                <div class="prediction-content">
+                    <div class="prediction-badge" id="trendBadge">
+                        <span class="trend-icon" id="trendIcon">📊</span>
+                        <span class="trend-text" id="trendText">中性</span>
+                    </div>
+                    <div class="prediction-details">
+                        <div class="confidence">
+                            <span class="label">置信度</span>
+                            <div class="confidence-bar">
+                                <div class="confidence-fill" id="confidenceFill" style="width: 50%"></div>
+                            </div>
+                            <span class="value" id="confidenceValue">50%</span>
+                        </div>
+                        <div class="target-price" id="targetPriceBox">
+                            <span class="label">目标价位</span>
+                            <span class="value" id="targetPrice">$0.00</span>
+                        </div>
+                    </div>
+                    <div class="prediction-reasons">
+                        <h4>分析依据：</h4>
+                        <ul id="reasonList"></ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 技术指标 -->
+            <section class="indicators card">
+                <h3>📊 技术指标</h3>
+                <div class="indicators-grid" id="indicatorsGrid">
+                    <!-- 指标卡片将动态插入 -->
+                </div>
+            </section>
+
+            <!-- K线图 -->
+            <section class="chart card">
+                <div class="chart-header">
+                    <h3>📈 价格走势</h3>
+                    <div class="chart-controls">
+                        <button onclick="changePeriod('1mo')" class="period-btn" data-period="1mo">1月</button>
+                        <button onclick="changePeriod('3mo')" class="period-btn active" data-period="3mo">3月</button>
+                        <button onclick="changePeriod('6mo')" class="period-btn" data-period="6mo">6月</button>
+                        <button onclick="changePeriod('1y')" class="period-btn" data-period="1y">1年</button>
+                    </div>
+                </div>
+                <div id="priceChart" style="width: 100%; height: 400px;"></div>
+            </section>
+        </main>
+
+        <!-- 页脚 -->
+        <footer class="footer">
+            <p>⚠️ 免责声明：本工具仅用于学习和研究目的，不构成投资建议。投资有风险，入市需谨慎。</p>
+            <p>数据来源：Yahoo Finance | 技术指标仅供参考</p>
+        </footer>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>

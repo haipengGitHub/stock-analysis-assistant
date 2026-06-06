@@ -1,0 +1,11 @@
+fastapi==0.109.0
+uvicorn==0.27.0
+pydantic==2.5.3
+yfinance>=0.2.54
+akshare>=1.14.0
+pandas==2.2.0
+numpy==1.26.3
+scikit-learn==1.4.0
+python-multipart==0.0.6
+jinja2>=3.1.0
+pandas-ta-classic>=0.3.14
