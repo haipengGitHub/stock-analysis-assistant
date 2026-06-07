@@ -26,6 +26,17 @@
             </div>
         </header>
 
+        <!-- 自选股列表 -->
+        <section class="watchlist card">
+            <div class="watchlist-header">
+                <h3>⭐ 自选股</h3>
+                <span class="watchlist-count" id="watchlistCount">0 只</span>
+            </div>
+            <div class="watchlist-grid" id="watchlistGrid">
+                <p class="empty-hint">暂无自选股，点击分析页面的收藏按钮添加</p>
+            </div>
+        </section>
+
         <!-- 加载状态 -->
         <div class="loading" id="loading" style="display: none;">
             <div class="spinner"></div>
@@ -44,6 +55,9 @@
                         <h2 id="stockName">Apple Inc.</h2>
                         <span class="stock-symbol" id="stockSymbol">AAPL</span>
                     </div>
+                    <button class="favorite-btn" id="favoriteBtn" onclick="toggleFavorite()" title="添加到自选">
+                        <span class="star-icon">☆</span>
+                    </button>
                     <div class="price-info">
                         <div class="current-price" id="currentPrice">$0.00</div>
                         <div class="price-change" id="priceChange">+0.00 (+0.00%)</div>

@@ -3,10 +3,12 @@
 let currentSymbol = 'AAPL';
 let currentPeriod = '3mo';
 let priceChart = null;
+let inWatchlist = false;
 
 // 页面加载时初始化
 document.addEventListener('DOMContentLoaded', () => {
     loadSuggestions();
+    loadWatchlist();
 
     // 输入框事件
     const input = document.getElementById('stockInput');
@@ -223,6 +225,9 @@ function displayResults(data) {
 
     // K线图
     renderChart(data.chart_data);
+
+    // 检查收藏状态
+    checkWatchlistStatus();
 }
 
 // 渲染K线图
@@ -490,4 +495,116 @@ function formatVolume(volume) {
         return (volume / 1000).toFixed(2) + 'K';
     }
     return volume.toString();
+}
+
+// ============ 自选股相关函数 ============
+
+// 加载自选股列表
+async function loadWatchlist() {
+    try {
+        const response = await fetch('/api/watchlist');
+        const data = await response.json();
+        renderWatchlist(data.watchlist);
+    } catch (error) {
+        console.error('加载自选股失败:', error);
+    }
+}
+
+// 渲染自选股列表
+function renderWatchlist(watchlist) {
+    const container = document.getElementById('watchlistGrid');
+    const countEl = document.getElementById('watchlistCount');
+
+    countEl.textContent = `${watchlist.length} 只`;
+
+    if (!watchlist || watchlist.length === 0) {
+        container.innerHTML = '<p class="empty-hint">暂无自选股，点击分析页面的收藏按钮添加</p>';
+        return;
+    }
+
+    container.innerHTML = watchlist.map(item => `
+        <div class="watchlist-item" onclick="selectStock('${item.symbol}')">
+            <div class="watchlist-item-info">
+                <span class="watchlist-symbol">${item.symbol}</span>
+                <span class="watchlist-name">${item.name}</span>
+            </div>
+            <button class="watchlist-remove-btn" onclick="event.stopPropagation(); removeFromWatchlist('${item.symbol}')" title="移除">✕</button>
+        </div>
+    `).join('');
+}
+
+// 切换收藏状态
+async function toggleFavorite() {
+    const symbol = currentSymbol;
+    const btn = document.getElementById('favoriteBtn');
+
+    if (inWatchlist) {
+        // 移除
+        try {
+            const response = await fetch(`/api/watchlist/${symbol}`, { method: 'DELETE' });
+            if (response.ok) {
+                inWatchlist = false;
+                updateFavoriteButton();
+                loadWatchlist();
+            }
+        } catch (error) {
+            console.error('移除自选失败:', error);
+        }
+    } else {
+        // 添加
+        try {
+            const response = await fetch(`/api/watchlist/${symbol}`, { method: 'POST' });
+            if (response.ok) {
+                inWatchlist = true;
+                updateFavoriteButton();
+                loadWatchlist();
+            }
+        } catch (error) {
+            console.error('添加自选失败:', error);
+        }
+    }
+}
+
+// 从自选移除
+async function removeFromWatchlist(symbol) {
+    try {
+        const response = await fetch(`/api/watchlist/${symbol}`, { method: 'DELETE' });
+        if (response.ok) {
+            loadWatchlist();
+            if (currentSymbol === symbol) {
+                inWatchlist = false;
+                updateFavoriteButton();
+            }
+        }
+    } catch (error) {
+        console.error('移除自选失败:', error);
+    }
+}
+
+// 更新收藏按钮状态
+function updateFavoriteButton() {
+    const btn = document.getElementById('favoriteBtn');
+    const starIcon = btn.querySelector('.star-icon');
+
+    if (inWatchlist) {
+        starIcon.textContent = '★';
+        btn.title = '从自选移除';
+        btn.classList.add('favorited');
+    } else {
+        starIcon.textContent = '☆';
+        btn.title = '添加到自选';
+        btn.classList.remove('favorited');
+    }
+}
+
+// 检查当前股票是否在自选中
+async function checkWatchlistStatus() {
+    try {
+        const response = await fetch(`/api/watchlist/check/${currentSymbol}`);
+        const data = await response.json();
+        inWatchlist = data.in_watchlist;
+        updateFavoriteButton();
+    } catch (error) {
+        console.error('检查自选状态失败:', error);
+    }
 }

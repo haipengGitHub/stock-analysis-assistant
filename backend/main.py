@@ -18,6 +18,7 @@ import time
 import warnings
 
 from market_data import fetch_stock_history
+from watchlist import get_watchlist_with_names, add_to_watchlist, remove_from_watchlist, is_in_watchlist
 
 warnings.filterwarnings('ignore')
 
@@ -416,6 +417,37 @@ async def get_suggestions():
         {"symbol": "BABA", "name": "阿里巴巴"},
     ]
     return {"suggestions": suggestions}
+
+
+# 自选股相关接口
+@app.get("/api/watchlist")
+async def get_watchlist_api():
+    """获取自选股列表"""
+    return {"watchlist": get_watchlist_with_names()}
+
+
+@app.post("/api/watchlist/{symbol}")
+async def add_to_watchlist_api(symbol: str):
+    """添加股票到自选股"""
+    added = add_to_watchlist(symbol)
+    if not added:
+        raise HTTPException(status_code=400, detail=f"股票 {symbol} 已在自选中")
+    return {"message": "已添加到自选", "symbol": symbol.upper()}
+
+
+@app.delete("/api/watchlist/{symbol}")
+async def remove_from_watchlist_api(symbol: str):
+    """从自选股移除股票"""
+    removed = remove_from_watchlist(symbol)
+    if not removed:
+        raise HTTPException(status_code=404, detail=f"股票 {symbol} 不在自选中")
+    return {"message": "已从自选移除", "symbol": symbol.upper()}
+
+
+@app.get("/api/watchlist/check/{symbol}")
+async def check_watchlist(symbol: str):
+    """检查股票是否在自选中"""
+    return {"in_watchlist": is_in_watchlist(symbol)}
 
 
 if __name__ == "__main__":
